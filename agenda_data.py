@@ -23,19 +23,12 @@ driver.quit()
 soup = BeautifulSoup(page, 'html.parser')
 
 
-'''sep29 = soup.find('div', attrs={"data-cvent-id":"sessions-list-September 29, 2020"})
-sep30 = soup.find('div', attrs={"data-cvent-id":"sessions-list-September 30, 2020"})
-oct1 = soup.find('div', attrs={"data-cvent-id":"sessions-list-October 1, 2020"})
-oct2 = soup.find('div', attrs={"data-cvent-id":"sessions-list-October 2, 2020"})
-oct3 = soup.find('div', attrs={"data-cvent-id":"sessions-list-October 3, 2020"})
-print(sep29)'''
-
 # extract sessions for date passed in as param
 # returns list of dictionaries (list of sessions for that day)
 def extractSessions(date):
     session_cards = date.find_all('div', class_='AgendaStyles__sessionContainer___ECftY')
     sessions = [] # list of dictionaries that represent sessions
-    print("DATE: " + str(date) + '\n')
+    #print("DATE: " + str(date) + '\n')
     for session in session_cards:
         session_attrs = dict()
         #name, time, description = ('',)*3
@@ -61,7 +54,7 @@ def extractSessions(date):
         session_attrs['Speakers'] = extractSpeakers(speaker_cards)
 
         sessions.append(session_attrs)
-        print("SESSION: " + str(session_attrs) + '\n')
+        #print("SESSION: " + str(session_attrs) + '\n')
 
     return sessions
 
@@ -86,30 +79,6 @@ def extractSpeakers(speaker_cards):
         speakers_list.append(speaker_info)
 
     return speakers_list
-#ep29_sessions = sep29.find_all('div', class_='AgendaStyles__sessionContainer___ECftY')
-'''
-for session in sep29_sessions:
-    #print(session.text.strip())
-    print('\n')
-    session_name = session.find('div', attrs={'data-cvent-id':re.compile(r'^session.*name$')})
-    print(session_name.text.strip())
-    session_time = session.find('div', attrs={'data-cvent-id':re.compile(r'^session.*time$')})
-    print(session_time.text.strip())
-    speaker_cards = session.find_all('div', class_='SessionsStyles__speakerCardContainer___33_zm')
-    speaker_info = []
-    for card in speaker_cards:
-        speaker_info.append([card.find('div', attrs={'data-cvent-id':'speakers-name'}).text.strip(),
-                             card.find('div', attrs={'data-cvent-id': 'speakers-title'}).text.strip(),
-                             card.find('div', attrs={'data-cvent-id': 'speakers-company'}).text.strip()])
-    print(speaker_info)
-    session_description = session.find('div', class_="AgendaStyles__sessionDescription___3dGx1")
-    print(session_description.text.strip())
-    #print(session_names.text.strip())
-
-session_name = [] #List to store name of the product
-time = [] #List to store price of the product
-speakers = [] #List to store rating of the product
-description = []'''
 
 
 # extract html for each date
@@ -117,16 +86,13 @@ dates_html = soup.find_all('div', attrs={"data-cvent-id":re.compile(r'^sessions-
 print("LENGTH OF DATES")
 print(len(dates_html))
 
-# extract sessions htrml for each date:
+# extract sessions html for each date:
 schedule = dict()
 d = 1
 for date in dates_html:
     schedule["Day " + str(d)] = extractSessions(date)
     d+=1
 
-#for key in schedule:
-#    print("SCHEDULE FOR " + str(key) + '/n')
-#    print(schedule[key])
 
 # save sessions for each date into csv file
 field_names = ['Session Name', 'Start Time', 'End Time', 'Description', 'Speakers']
@@ -141,16 +107,5 @@ for date in schedule:
             print("SESSION IN DATE:")
             print(session)
             if not session['Speakers']: session['Speakers'] = ""
-            #speakers_info = session.pop('Speakers', None)
-            '''if isinstance(speakers_info, dict):
-                print('SPEAKERS INFO')
-                print(speakers_info)
-                for s in speakers_info:  # s is a dictionary, speakers_info is list of dictionaries
-                    print('S IN SPEAKERS_INFO')
-                    print(s)
-                    if s['name'] is not None: speakers_info += s['name']
-                    if s['title'] is not None: speakers_info += ', a ' + s['title']
-                    if s['company'] is not None: speakers_info += ' at ' + s['company']'''
-            #session['Speakers'] = speakers_info
         writer.writerows(schedule[date])
     x+=1
