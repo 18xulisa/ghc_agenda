@@ -8,7 +8,7 @@ import re
 import csv
 
 options = Options()
-#options.add_argument('--headless')
+#options.add_argument('--headless') # browser doesn't open
 options.add_argument('--disable-gpu')
 driver = webdriver.Chrome(chrome_options=options, executable_path='C:/Python36/chromedriver.exe')
 url = "https://web.cvent.com/event/84f26b13-25ef-458c-9d38-38432d71be09/websitePage:645d57e4-75eb-4769-b2c0-f201a0bfc6ce"
@@ -140,10 +140,16 @@ for date in schedule:
         for session in schedule[date]: # session is a dictionary
             print("SESSION IN DATE:")
             print(session)
-            speakers_info = session.pop('speakers', None)
+            speakers_info = session.pop('Speakers', None)
             if speakers_info is not None:
+                print('SPEAKERS INFO')
+                print(speakers_info)
                 for s in speakers_info:  # s is a dictionary, speakers_info is list of dictionaries
-                    speakers_info += s['name'] + ', a ' + s['title'] + ' at ' + s['company']
+                    print('S IN SPEAKERS_INFO')
+                    print(s)
+                    if s['name'] is not None: speakers_info += s['name']
+                    if s['title'] is not None: speakers_info += ', a ' + s['title']
+                    if s['company'] is not None: speakers_info += ' at ' + s['company']
             session['Speakers'] = speakers_info
             writer.writerow(session)
     x+=1
