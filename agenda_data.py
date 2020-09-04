@@ -6,6 +6,8 @@ import requests
 import time
 import re
 import csv
+from create_calendar_events import createGoogleCalEvents
+
 
 options = Options()
 #options.add_argument('--headless') # browser doesn't open
@@ -38,10 +40,9 @@ def extractSessions(date):
         time = session.find('div', attrs={'data-cvent-id':re.compile(r'^session.*time$')})
         if time is not None:
             time = time.text.strip()
-            print(time)
             times = time.split('-', 2)
             start_time = times[0]
-            end_time = times[1][:-2]
+            end_time = times[1][:-3]
         description = session.find('div', class_="AgendaStyles__sessionDescription___3dGx1")
         if description is not None: description = description.text.strip()
         session_attrs['Session Name'] = name
@@ -83,8 +84,7 @@ def extractSpeakers(speaker_cards):
 
 # extract html for each date
 dates_html = soup.find_all('div', attrs={"data-cvent-id":re.compile(r'^sessions-list-.*2020$')})
-print("LENGTH OF DATES")
-print(len(dates_html))
+
 
 # extract sessions html for each date:
 schedule = dict()
@@ -98,14 +98,26 @@ for date in dates_html:
 field_names = ['Session Name', 'Start Time', 'End Time', 'Description', 'Speakers']
 x = 1
 for date in schedule:
-    print("DATE")
-    print(date)
+    #print("DATE")
+    #print(date)
     with open('Day_' + str(x) + '_Schedule.csv', 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=field_names)
         writer.writeheader()
         for session in schedule[date]: # session is a dictionary
-            print("SESSION IN DATE:")
-            print(session)
+            #print("SESSION IN DATE:")
+            #print(session)
             if not session['Speakers']: session['Speakers'] = ""
         writer.writerows(schedule[date])
     x+=1
+
+
+# create google calendar events
+dates = ['9/29/20', '9/30/20', '10/1/20', '10/2/20', '10/3/20']
+i = 0
+
+for date in schedule:
+    #print(schedule[date][0])
+    del schedule[date][0]
+    for session in schedule[date]:
+        createGoogleCalEvents(session, dates[i])
+    i += 1
